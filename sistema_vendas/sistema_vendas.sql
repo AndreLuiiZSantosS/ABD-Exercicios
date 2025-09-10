@@ -119,20 +119,105 @@ INSERT INTO itens_pedido (id_pedido, id_produto, quantidade, preco_unitario) VAL
 (2, 3, 1, 350.00),   -- Maria comprou 1 Tênis
 (3, 4, 3, 89.90);    -- João comprou 3 Livros
 
--- Listar todos os usuarios ativos
+-- Listar todos os usuários ativos
 SELECT id_usuario, nome, email, telefone
 FROM usuario
 WHERE ativo = TRUE;
 
--- Listar produtos, seus preços e quantidade no estoque por ordem alfabeticca de seus nomes
-select nome, preco, quantidade_estoque FROM produto order by nome;
+-- Listar produtos, seus preços e quantidade no estoque por ordem alfabética de seus nomes
+SELECT nome, preco, quantidade_estoque 
+FROM produto 
+ORDER BY nome;
 
--- Listar quantos pedidos existem em cada status
-select status_pedido FROM pedido; 
+-- Listar quantos pedidos existem e qual o seu status
+SELECT status_pedido, COUNT(*) AS total
+FROM pedido
+GROUP BY status_pedido;
 
--- Alerta de Estoque Baixo 
-select nome, quantidade_estoque FROM produto WHERE quantidade_estoque < 30 order by quantidade_estoque;
+-- Alerta de estoque baixo
+SELECT nome, quantidade_estoque 
+FROM produto 
+WHERE quantidade_estoque < 30 
+ORDER BY quantidade_estoque;
 
--- Listar pedidos recentes
-SELECT id_pedido, data_pedido, valor_total, status_pedido FROM pedido WHERE data_pedido >= CURRENT_DATE - INTERVAL '60 days'
+-- Listar histórico de pedidos recentes nos últimos 60 dias
+SELECT id_pedido, data_pedido, valor_total, status_pedido 
+FROM pedido 
+WHERE data_pedido >= CURRENT_DATE - INTERVAL '60 days'
 ORDER BY data_pedido DESC;
+
+-- Listar itens mais caros em cada categoria
+SELECT DISTINCT ON (categoria) categoria, nome, preco
+FROM produto
+ORDER BY categoria, preco DESC;
+
+-- Listar clientes com dados de contato incompletos
+SELECT id_usuario, nome, email, telefone
+FROM usuario
+WHERE ativo = TRUE
+  AND (telefone IS NULL OR telefone = '');
+
+-- Listar entregas pendentes
+SELECT p.id_pedido, u.nome AS cliente, u.email, u.telefone, p.endereco_entrega
+FROM pedido p
+JOIN usuario u ON p.id_usuario = u.id_usuario
+WHERE p.status_pedido = 'enviado';
+
+-- Listar detalhes do pedido
+SELECT p.id_pedido, u.nome AS cliente, u.email, u.telefone, i.id_produto, pr.nome AS produto, i.quantidade, i.preco_unitario, i.subtotal
+FROM pedido p
+JOIN usuario u ON p.id_usuario = u.id_usuario
+JOIN itens_pedido i ON i.id_pedido = p.id_pedido
+JOIN produto pr ON pr.id_produto = i.id_produto 
+WHERE p.id_pedido = 1;
+
+-- Listar ranking de produtos mais vendidos
+SELECT pr.nome, pr.categoria, SUM(ip.quantidade) AS total_vendido
+FROM itens_pedido ip
+JOIN produto pr ON pr.id_produto = ip.id_produto
+GROUP BY pr.id_produto, pr.nome, pr.categoria
+ORDER BY total_vendido DESC;
+
+-- Listar análise de clientes sem compras
+SELECT u.id_usuario, u.nome, u.email, u.telefone
+FROM usuario u
+LEFT JOIN pedido p ON u.id_usuario = p.id_usuario
+WHERE p.id_pedido IS NULL
+  AND u.ativo = TRUE;
+
+-- Listar estatísticas de compras por cliente
+SELECT u.id_usuario, u.nome, COUNT(DISTINCT p.id_pedido) AS total_pedidos, COALESCE(AVG(p.valor_total), 0) AS valor_medio_pedido, COALESCE(SUM(p.valor_total), 0) AS valor_total_gasto
+FROM usuario u
+JOIN pedido p ON u.id_usuario = p.id_usuario
+GROUP BY u.id_usuario, u.nome
+ORDER BY valor_total_gasto DESC;
+
+-- Listar relatório mensal de vendas
+SELECT 
+  TO_CHAR(p.data_pedido, 'YYYY-MM') AS periodo,
+  COUNT(DISTINCT p.id_pedido) AS total_pedidos,
+  COUNT(DISTINCT ip.id_produto) AS produtos_diferentes,
+  COALESCE(SUM(ip.subtotal), 0) AS faturamento_total
+FROM pedido p
+JOIN itens_pedido ip ON p.id_pedido = ip.id_pedido
+WHERE p.status_pedido != 'cancelado'
+GROUP BY periodo
+ORDER BY periodo;
+
+-- Listar produtos que nunca foram vendidos
+SELECT pr.id_produto, pr.nome, pr.categoria, pr.preco
+FROM produto pr
+LEFT JOIN itens_pedido ip ON pr.id_produto = ip.id_produto
+WHERE ip.id_produto IS NULL
+  AND pr.ativo = TRUE;
+
+-- Listar análise de ticket médio por categoria
+SELECT
+  pr.categoria,
+  COALESCE(AVG(p.valor_total), 0) AS ticket_medio
+FROM pedido p
+JOIN itens_pedido ip ON p.id_pedido = ip.id_pedido
+JOIN produto pr ON pr.id_produto = ip.id_produto
+WHERE p.status_pedido != 'cancelado'
+GROUP BY pr.categoria
+ORDER BY ticket_medio DESC;
