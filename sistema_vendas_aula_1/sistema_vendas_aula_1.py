@@ -43,7 +43,7 @@ class SistemaVendasCLI:
                         
     def executar_consulta(self, sql: str, descricao: str) -> None:
         if not self.conexao:
-            print("⚠️ Sem conexão ativa.")
+            print("Sem conexão ativa.")
             return
         
         try:
@@ -62,9 +62,9 @@ class SistemaVendasCLI:
                         print(" | ".join(str(c) for c in linha))
                     
                     if not registros:
-                        print("⚠️ Nenhum resultado encontrado.")
+                        print("Nenhum resultado encontrado.")
                 else:
-                    print("✅ Consulta executada com sucesso.")
+                    print("Consulta executada com sucesso.")
         except psycopg2.Error as e:
             print(f"Erro ao executar consulta: {e}")
     
@@ -276,7 +276,7 @@ class SistemaVendasCLI:
             elif opcao == "0":
                 break
             else:
-                print("⚠️ Opção inválida!")
+                print("Opção inválida!")
             
             input("\nPressione ENTER para continuar...")
 
