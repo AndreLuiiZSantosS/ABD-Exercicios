@@ -128,7 +128,6 @@ INSERT INTO Professor(nome, curso) VALUES
 ('Gracon Lima', 'TADS'),
 ('Placido Neto', 'TADS'),
 ('Robinson Alves', 'TADS'),
-('Marcelo Fernandes', 'TADS'),
 ('Anna Cecilia', 'TADS');
 
 -- Alunos
@@ -170,15 +169,15 @@ INSERT INTO Horario(numero, hora_inicio, hora_fim) VALUES
 -- Alocação de disciplinas em turmas e laboratórios
 INSERT INTO AlocacaoDisciplinaTurma(disciplina_id, turma_id, professor_id, laboratorio_id, dia_semana, horario_inicio, horario_fim)
 VALUES
-( (SELECT disciplina_id FROM Disciplina WHERE codigo='TEC.0023'), (SELECT turma_id FROM Turma WHERE codigo='TADS-1M'), (SELECT professor_id FROM Professor WHERE nome='Marcelo Fernandes'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 1'), 'Seg', 1, 2),
+( (SELECT disciplina_id FROM Disciplina WHERE codigo='TEC.0023'), (SELECT turma_id FROM Turma WHERE codigo='TADS-1M'), (SELECT professor_id FROM Professor WHERE nome='Fabiano Papaiz'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 1'), 'Seg', 1, 2),
 ( (SELECT disciplina_id FROM Disciplina WHERE codigo='TEC.0026'), (SELECT turma_id FROM Turma WHERE codigo='TADS-2M'), (SELECT professor_id FROM Professor WHERE nome='Anna Cecilia'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 6'), 'Ter', 3, 4);
 
 
 -- Reservas de exemplo
 INSERT INTO Reserva(professor_id, laboratorio_id, data_inicio, data_fim, qtd_alunos, tipo) VALUES
-( (SELECT professor_id FROM Professor WHERE nome='Marcelo Fernandes'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 1'), '2025-09-22 08:00','2025-09-22 10:00',35,'Aula'),
-( (SELECT professor_id FROM Professor WHERE nome='Gracon Lima'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 6'), '2025-09-23 14:00','2025-09-23 16:00',28,'AtividadeExtra');
-
+( (SELECT professor_id FROM Professor WHERE nome='Fabiano Papaiz'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 1'), '2025-09-22 08:00','2025-09-22 10:00',35,'Aula'),
+( (SELECT professor_id FROM Professor WHERE nome='Gracon Lima'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 6'), '2025-09-23 14:00','2025-09-23 16:00',28,'AtividadeExtra'),
+( (SELECT professor_id FROM Professor WHERE nome='Placido Neto'), (SELECT lab_id FROM Laboratorio WHERE nome='Laboratório 2'), '2025-09-24 10:00', '2025-09-24 12:00', 25, 'Aula');
 
 -- Retirada/Entrega de Chave
 INSERT INTO RetiradaEntregaChave(reserva_id, laboratorio_id, data_retirada, data_entrega, responsavel)
